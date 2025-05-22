@@ -40,6 +40,10 @@ public class PointService {
    * 특정 유저의 포인트 충전
    */
   public UserPoint charge(long userId, long amount) {
+    if (amount <= 0) {
+      throw new IllegalArgumentException("충전 금액은 0보다 커야 합니다.");
+    }
+
     ReentrantLock lock = lockMap.computeIfAbsent(userId, id -> new ReentrantLock());
     lock.lock();
     try {
@@ -61,6 +65,10 @@ public class PointService {
    * 특정 유저의 포인트 사용
    */
   public UserPoint use(long userId, long amount) {
+    if (amount <= 0) {
+      throw new IllegalArgumentException("사용 금액은 0보다 커야 합니다.");
+    }
+
     ReentrantLock lock = lockMap.computeIfAbsent(userId, id -> new ReentrantLock());
     lock.lock();
     try {
