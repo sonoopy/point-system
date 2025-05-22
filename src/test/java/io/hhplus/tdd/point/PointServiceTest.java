@@ -87,7 +87,8 @@ public class PointServiceTest {
     long current = 100_000_000L;
     long amount = 1L;
 
-    when(userPointTable.selectById(userId)).thenReturn(new UserPoint(userId, current, System.currentTimeMillis()));
+    when(userPointTable.selectById(userId)).thenReturn(
+        new UserPoint(userId, current, System.currentTimeMillis()));
 
     // expect
     assertThatThrownBy(() -> pointService.charge(userId, amount))
@@ -126,11 +127,44 @@ public class PointServiceTest {
     long current = 1_000L;
     long amount = 2_000L;
 
-    when(userPointTable.selectById(userId)).thenReturn(new UserPoint(userId, current, System.currentTimeMillis()));
+    when(userPointTable.selectById(userId)).thenReturn(
+        new UserPoint(userId, current, System.currentTimeMillis()));
 
     // expect
     assertThatThrownBy(() -> pointService.use(userId, amount))
         .isInstanceOf(IllegalStateException.class)
         .hasMessageContaining("포인트가 부족");
+  }
+
+  @Test
+  @DisplayName("0 이하 금액으로 충전 시 예외가 발생한다")
+  void charge_ThrowsIfAmountIsZeroOrNegative() {
+    // given
+    long userId = 1L;
+
+    // when and then
+    assertThatThrownBy(() -> pointService.charge(userId, 0))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("0보다 커야");
+
+    assertThatThrownBy(() -> pointService.charge(userId, -1000))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("0보다 커야");
+  }
+
+  @Test
+  @DisplayName("0 이하 금액으로 차감 시 예외가 발생한다")
+  void use_ThrowsIfAmountIsZeroOrNegative() {
+    // given
+    long userId = 1L;
+
+    // when and then
+    assertThatThrownBy(() -> pointService.use(userId, 0))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("0보다 커야");
+
+    assertThatThrownBy(() -> pointService.use(userId, -1000))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("0보다 커야");
   }
 }
